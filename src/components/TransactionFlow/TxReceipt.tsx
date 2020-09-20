@@ -7,6 +7,7 @@ import React, {
   useState
 } from 'react';
 
+import { Button as UiButton } from '@mycrypto/ui';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -261,6 +262,7 @@ const TxReceipt = ({
       baseAssetRate={baseAssetRate}
       handleTxCancelRedirect={handleTxCancelRedirect}
       handleTxSpeedUpRedirect={handleTxSpeedUpRedirect}
+      txType={txReceipt && txReceipt.txType}
     />
   );
 };
@@ -346,14 +348,17 @@ export const TxReceiptUI = ({
           }}
         />
       )}
-      {txStatus === ITxStatus.PENDING && (
+      {txStatus === ITxStatus.PENDING && txType !== ITxType.FAUCET && (
         <div className="TransactionReceipt-row">
           <div className="TransactionReceipt-row-desc">
             {protectTxEnabled && !web3Wallet && <SSpacer />}
-            {txType === ITxType.FAUCET
-              ? translate('FAUCET_SUCCESS')
-              : translate('TRANSACTION_BROADCASTED_DESC')}
+            {translate('TRANSACTION_BROADCASTED_DESC')}
           </div>
+        </div>
+      )}
+      {txType === ITxType.FAUCET && (
+        <div className="TransactionReceipt-row">
+          <div className="TransactionReceipt-row-desc">{translate('FAUCET_SUCCESS')}</div>
         </div>
       )}
       {txType === ITxType.SWAP && swapDisplay && (
@@ -503,20 +508,22 @@ export const TxReceiptUI = ({
 
         {protectTxButton && protectTxButton()}
 
-        <TransactionDetailsDisplay
-          baseAsset={baseAsset}
-          asset={asset}
-          confirmations={displayTxReceipt && displayTxReceipt.confirmations}
-          gasUsed={displayTxReceipt && displayTxReceipt.gasUsed}
-          data={data}
-          sender={sender}
-          gasLimit={gasLimit}
-          gasPrice={gasPrice}
-          nonce={nonce}
-          rawTransaction={txConfig.rawTransaction}
-          fiat={fiat}
-          baseAssetRate={baseAssetRate}
-        />
+        {txType !== ITxType.FAUCET && (
+          <TransactionDetailsDisplay
+            baseAsset={baseAsset}
+            asset={asset}
+            confirmations={displayTxReceipt && displayTxReceipt.confirmations}
+            gasUsed={displayTxReceipt && displayTxReceipt.gasUsed}
+            data={data}
+            sender={sender}
+            gasLimit={gasLimit}
+            gasPrice={gasPrice}
+            nonce={nonce}
+            rawTransaction={txConfig.rawTransaction}
+            fiat={fiat}
+            baseAssetRate={baseAssetRate}
+          />
+        )}
       </div>
       {txType === ITxType.FAUCET && (
         <NewTabLink
@@ -524,10 +531,10 @@ export const TxReceiptUI = ({
             translateRaw('FAUCET_TWEET')
           )}`}
         >
-          <Button className="TransactionReceipt-tweet">
+          <UiButton className="TransactionReceipt-tweet">
             <i className="sm-icon sm-logo-twitter TransactionReceipt-tweet-icon" />{' '}
             <span className="TransactionReceipt-tweet-text">{translate('FAUCET_SHARE')}</span>
-          </Button>
+          </UiButton>
         </NewTabLink>
       )}
       {completeButtonText && !(txStatus === ITxStatus.PENDING) && (
@@ -535,7 +542,7 @@ export const TxReceiptUI = ({
           {completeButtonText}
         </Button>
       )}
-      {txStatus === ITxStatus.PENDING && txConfig && (
+      {txStatus === ITxStatus.PENDING && txType !== ITxType.FAUCET && txConfig && (
         <Tooltip tooltip={translateRaw('SPEED_UP_TOOLTIP')}>
           <Button
             className="TransactionReceipt-another"
@@ -546,8 +553,8 @@ export const TxReceiptUI = ({
           </Button>
         </Tooltip>
       )}
-      <br />
-      {txStatus === ITxStatus.PENDING && txConfig && (
+      {txType !== ITxType.FAUCET && <br />}
+      {txStatus === ITxStatus.PENDING && txType !== ITxType.FAUCET && txConfig && (
         <Tooltip tooltip={translateRaw('SPEED_UP_TOOLTIP')}>
           <Button
             className="TransactionReceipt-another"
@@ -560,9 +567,9 @@ export const TxReceiptUI = ({
       )}
       {txType === ITxType.FAUCET ? (
         <Link to={ROUTE_PATHS.DASHBOARD.path}>
-          <Button secondary={true} className="TransactionReceipt-back">
+          <UiButton secondary={true} className="TransactionReceipt-back">
             {translate('FAUCET_CLOSE')}
-          </Button>
+          </UiButton>
         </Link>
       ) : (
         <Link to={ROUTE_PATHS.DASHBOARD.path}>
