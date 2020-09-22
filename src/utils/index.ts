@@ -1,4 +1,3 @@
-export * from './error';
 export { notUndefined, isTxSigned, isTxHash } from './typeGuards';
 export * from './validators';
 export {
@@ -14,14 +13,12 @@ export { getFeaturedOS } from './getFeaturedOS';
 export {
   generateUUID,
   generateAssetUUID,
-  generateContractUUID,
-  generateAccountUUID,
+  generateDeterministicAddressUUID,
   getUUID
 } from './generateUUID';
 export { isUrl } from './isUrl';
 export { truncate } from './truncate';
 export { useOnClickOutside } from './useOnClickOutside';
-export { trace } from './trace';
 export {
   convertToFiat,
   convertToFiatFromAsset,
@@ -47,15 +44,9 @@ export {
   createQueryParamsDefaultObject
 } from './queries';
 export { noOp } from './noOp';
-export {
-  formatGasLimit,
-  formatNumber,
-  formatMnemonic,
-  toChecksumAddressByChainId
-} from './formatters';
+export { formatMnemonic, toChecksumAddressByChainId } from './formatters';
 export { makeBlob } from './blob';
 export { default as consoleAdvertisement } from './consoleAdvertisement';
-export { tap } from './tap';
 export {
   makePendingTxReceipt,
   makeTxConfigFromSignedTx,
@@ -63,7 +54,7 @@ export {
   makeTxConfigFromTxResponse,
   makeFinishedTxReceipt,
   makeUnknownTxReceipt,
-  guessIfErc20Tx,
+  guessERC20Type,
   deriveTxRecipientsAndAmount
 } from './transaction';
 export {
@@ -77,7 +68,6 @@ export { withContext } from './withContext';
 export { getWeb3Config, isWeb3Wallet } from './web3';
 export { toArray } from './toArray';
 export { objToString } from './objToString';
-export * from './constants';
 export { bigify } from './bigify';
 export { useTxMulti, TxParcel } from './useTxMulti';
 export { withProtectTxProvider } from './withProtectTxProvider';

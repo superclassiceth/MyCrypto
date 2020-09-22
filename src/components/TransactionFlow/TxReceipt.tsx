@@ -36,13 +36,7 @@ import {
   getTransactionReceiptFromHash,
   ProviderHandler
 } from '@services/EthService';
-import {
-  getStoreAccount,
-  SettingsContext,
-  StoreContext,
-  useAccounts,
-  useContacts
-} from '@services/Store';
+import { StoreContext, useAccounts, useContacts, useSettings, getStoreAccount } from '@services/Store';
 import { BREAK_POINTS } from '@theme';
 import translate, { translateRaw } from '@translations';
 import {
@@ -56,7 +50,8 @@ import {
   ITxReceiptStepProps,
   ITxStatus,
   ITxType,
-  TAddress
+  TAddress,
+  TxQueryTypes
 } from '@types';
 import { convertToFiat, isSenderAccountPresentAndOfMainType, truncate } from '@utils';
 import { constructCancelTxQuery, constructSpeedUpTxQuery } from '@utils/queries';
@@ -65,7 +60,7 @@ import { path } from '@vendor';
 
 import { FromToAccount, SwapFromToDiagram, TransactionDetailsDisplay } from './displays';
 import TxIntermediaryDisplay from './displays/TxIntermediaryDisplay';
-import { constructSenderFromTxConfig } from './helpers';
+import { calculateReplacementGasPrice, constructSenderFromTxConfig } from './helpers';
 import { PendingTransaction } from './PendingLoader';
 import { ISender } from './types';
 import './TxReceipt.scss';
@@ -97,6 +92,7 @@ const SSpacer = styled.div`
 const TxReceipt = ({
   txReceipt,
   txConfig,
+  txQueryType,
   completeButtonText,
   membershipSelected,
   zapSelected,
@@ -111,7 +107,7 @@ const TxReceipt = ({
   const { getContactByAddressAndNetworkId } = useContacts();
   const { addTxToAccount } = useAccounts();
   const { accounts } = useContext(StoreContext);
-  const { settings } = useContext(SettingsContext);
+  const { settings } = useSettings();
   const [txStatus, setTxStatus] = useState(
     txReceipt ? txReceipt.status : (ITxStatus.PENDING as ITxHistoryStatus)
   );
@@ -210,14 +206,14 @@ const TxReceipt = ({
   const handleTxSpeedUpRedirect = async () => {
     if (!txConfig) return;
     const { fast } = await fetchGasPriceEstimates(txConfig.network);
-    const query = constructSpeedUpTxQuery(txConfig, fast);
+    const query = constructSpeedUpTxQuery(txConfig, calculateReplacementGasPrice(txConfig, fast));
     history.replace(`${ROUTE_PATHS.SEND.path}/?${query}`);
   };
 
   const handleTxCancelRedirect = async () => {
     if (!txConfig) return;
     const { fast } = await fetchGasPriceEstimates(txConfig.network);
-    const query = constructCancelTxQuery(txConfig, fast);
+    const query = constructCancelTxQuery(txConfig, calculateReplacementGasPrice(txConfig, fast));
     history.replace(`${ROUTE_PATHS.SEND.path}/?${query}`);
   };
 
@@ -255,6 +251,7 @@ const TxReceipt = ({
       membershipSelected={membershipSelected}
       swapDisplay={swapDisplay}
       completeButtonText={completeButtonText}
+      txQueryType={txQueryType}
       setDisplayTxReceipt={setDisplayTxReceipt}
       resetFlow={resetFlow}
       protectTxButton={protectTxButton}
@@ -310,6 +307,7 @@ export const TxReceiptUI = ({
   recipientContact,
   resetFlow,
   completeButtonText,
+  txQueryType,
   isSenderAccountPresent,
   handleTxCancelRedirect,
   handleTxSpeedUpRedirect,
@@ -496,7 +494,7 @@ export const TxReceiptUI = ({
             {displayTxReceipt &&
               (timestamp !== 0 ? (
                 <div>
-                  {<TimeElapsed value={timestamp * 1000} />}
+                  {<TimeElapsed value={timestamp} />}
                   <br /> {localTimestamp}
                 </div>
               ) : (
@@ -542,7 +540,7 @@ export const TxReceiptUI = ({
           {completeButtonText}
         </Button>
       )}
-      {txStatus === ITxStatus.PENDING && txType !== ITxType.FAUCET && txConfig && (
+      {txStatus === ITxStatus.PENDING && txType !== ITxType.FAUCET && txQueryType !== TxQueryTypes.SPEEDUP && txConfig && (
         <Tooltip tooltip={translateRaw('SPEED_UP_TOOLTIP')}>
           <Button
             className="TransactionReceipt-another"
@@ -554,7 +552,7 @@ export const TxReceiptUI = ({
         </Tooltip>
       )}
       {txType !== ITxType.FAUCET && <br />}
-      {txStatus === ITxStatus.PENDING && txType !== ITxType.FAUCET && txConfig && (
+      {txStatus === ITxStatus.PENDING && txQueryType !== TxQueryTypes.CANCEL && txType !== ITxType.FAUCET && txConfig && (
         <Tooltip tooltip={translateRaw('SPEED_UP_TOOLTIP')}>
           <Button
             className="TransactionReceipt-another"

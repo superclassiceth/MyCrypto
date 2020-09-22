@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useEffect, useMemo, useState } from 'react';
 
 import { getUnlockTimestamps } from '@mycrypto/unlock-scan';
 import { BigNumber } from 'bignumber.js';
@@ -42,7 +42,7 @@ import {
 } from '@types';
 import {
   convertToFiatFromAsset,
-  generateAccountUUID,
+  generateDeterministicAddressUUID,
   getWeb3Config,
   isArrayEqual,
   isSameAddress,
@@ -73,7 +73,7 @@ import {
   isNotExcludedAsset
 } from './helpers';
 import { getNetworkById, useNetworks } from './Network';
-import { SettingsContext } from './Settings';
+import { useSettings } from './Settings';
 
 export interface CoinGeckoManifest {
   [uuid: string]: string;
@@ -148,7 +148,7 @@ export const StoreProvider: React.FC = ({ children }) => {
     createMultipleAccountsWithIDs
   } = useAccounts();
   const { assets, addAssetsFromAPI } = useAssets();
-  const { settings, updateSettingsAccounts } = useContext(SettingsContext);
+  const { settings, updateSettingsAccounts } = useSettings();
   const { networks } = useNetworks();
   const { createContact, contacts, getContactByAddressAndNetworkId, updateContact } = useContacts();
 
@@ -417,7 +417,10 @@ export const StoreProvider: React.FC = ({ children }) => {
     ) =>
       state
         .totals(selectedAccounts)
-        .reduce((sum, asset) => (sum += convertToFiatFromAsset(asset, getAssetRate(asset))), 0),
+        .reduce(
+          (sum, asset) => (sum += parseFloat(convertToFiatFromAsset(asset, getAssetRate(asset)))),
+          0
+        ),
 
     assetTickers: (targetAssets = state.assets()) => [
       ...new Set(targetAssets.map((a) => a.ticker))
@@ -469,7 +472,7 @@ export const StoreProvider: React.FC = ({ children }) => {
         transactions: [],
         favorite: false,
         mtime: 0,
-        uuid: generateAccountUUID(networkId, address)
+        uuid: generateDeterministicAddressUUID(networkId, address)
       }));
       if (newRawAccounts.length === 0) return;
       const newLabels = findMultipleNextUnusedDefaultLabels(
@@ -508,7 +511,7 @@ export const StoreProvider: React.FC = ({ children }) => {
       const walletType =
         accountType! === WalletId.WEB3 ? WalletId[getWeb3Config().id] : accountType!;
       const newAsset: Asset = getNewDefaultAssetTemplateByNetwork(assets)(network);
-      const accountUUID = generateAccountUUID(networkId, address);
+      const accountUUID = generateDeterministicAddressUUID(networkId, address);
       const account: IRawAccount = {
         address,
         networkId,
