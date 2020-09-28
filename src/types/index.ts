@@ -118,3 +118,4 @@ export {
   ITokenMigrationFormFull,
   TokenMigrationState
 } from './tokenMigration';
+export { IGolemMigration } from './golemV2Migration';

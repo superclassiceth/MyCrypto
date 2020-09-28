@@ -9,6 +9,9 @@ export const ZRXUUID = '36a94c95-ec51-5e0f-b254-415e31d1c3a7';
 export const REPV1UUID = 'd017a1e8-bdd3-5c32-8866-da258f75b0e9' as TUuid;
 export const REPV2UUID = '3dcbc269-fa47-5707-b180-4cb0ba6e5cdf' as TUuid;
 
+export const GOLEMV1UUID = '59a6f871-34bb-5914-86cc-b5f1307bb3b9' as TUuid;
+export const GOLEMV2UUID = '' as TUuid;
+
 export const EMPTYUUID = '00000000-0000-0000-0000-000000000000';
 
 export const MOONPAY_ASSET_UUIDS = [
