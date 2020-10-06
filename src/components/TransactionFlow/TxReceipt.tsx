@@ -7,7 +7,6 @@ import React, {
   useState
 } from 'react';
 
-import { Button as UiButton } from '@mycrypto/ui';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -36,7 +35,13 @@ import {
   getTransactionReceiptFromHash,
   ProviderHandler
 } from '@services/EthService';
-import { StoreContext, useAccounts, useContacts, useSettings, getStoreAccount } from '@services/Store';
+import {
+  getStoreAccount,
+  StoreContext,
+  useAccounts,
+  useContacts,
+  useSettings
+} from '@services/Store';
 import { BREAK_POINTS } from '@theme';
 import translate, { translateRaw } from '@translations';
 import {
@@ -529,10 +534,10 @@ export const TxReceiptUI = ({
             translateRaw('FAUCET_TWEET')
           )}`}
         >
-          <UiButton className="TransactionReceipt-tweet">
+          <Button className="TransactionReceipt-tweet">
             <i className="sm-icon sm-logo-twitter TransactionReceipt-tweet-icon" />{' '}
             <span className="TransactionReceipt-tweet-text">{translate('FAUCET_SHARE')}</span>
-          </UiButton>
+          </Button>
         </NewTabLink>
       )}
       {completeButtonText && !(txStatus === ITxStatus.PENDING) && (
@@ -540,34 +545,40 @@ export const TxReceiptUI = ({
           {completeButtonText}
         </Button>
       )}
-      {txStatus === ITxStatus.PENDING && txType !== ITxType.FAUCET && txQueryType !== TxQueryTypes.SPEEDUP && txConfig && (
-        <Tooltip tooltip={translateRaw('SPEED_UP_TOOLTIP')}>
-          <Button
-            className="TransactionReceipt-another"
-            onClick={handleTxSpeedUpRedirect}
-            disabled={!isSenderAccountPresent}
-          >
-            {translateRaw('SPEED_UP_TX_BTN')}
-          </Button>
-        </Tooltip>
-      )}
+      {txStatus === ITxStatus.PENDING &&
+        txType !== ITxType.FAUCET &&
+        txQueryType !== TxQueryTypes.SPEEDUP &&
+        txConfig && (
+          <Tooltip tooltip={translateRaw('SPEED_UP_TOOLTIP')}>
+            <Button
+              className="TransactionReceipt-another"
+              onClick={handleTxSpeedUpRedirect}
+              disabled={!isSenderAccountPresent}
+            >
+              {translateRaw('SPEED_UP_TX_BTN')}
+            </Button>
+          </Tooltip>
+        )}
       {txType !== ITxType.FAUCET && <br />}
-      {txStatus === ITxStatus.PENDING && txQueryType !== TxQueryTypes.CANCEL && txType !== ITxType.FAUCET && txConfig && (
-        <Tooltip tooltip={translateRaw('SPEED_UP_TOOLTIP')}>
-          <Button
-            className="TransactionReceipt-another"
-            onClick={handleTxCancelRedirect}
-            disabled={!isSenderAccountPresent}
-          >
-            {translateRaw('CANCEL_TX_BTN')}
-          </Button>
-        </Tooltip>
-      )}
+      {txStatus === ITxStatus.PENDING &&
+        txQueryType !== TxQueryTypes.CANCEL &&
+        txType !== ITxType.FAUCET &&
+        txConfig && (
+          <Tooltip tooltip={translateRaw('SPEED_UP_TOOLTIP')}>
+            <Button
+              className="TransactionReceipt-another"
+              onClick={handleTxCancelRedirect}
+              disabled={!isSenderAccountPresent}
+            >
+              {translateRaw('CANCEL_TX_BTN')}
+            </Button>
+          </Tooltip>
+        )}
       {txType === ITxType.FAUCET ? (
         <Link to={ROUTE_PATHS.DASHBOARD.path}>
-          <UiButton secondary={true} className="TransactionReceipt-back">
+          <Button secondary={true} className="TransactionReceipt-back">
             {translate('FAUCET_CLOSE')}
-          </UiButton>
+          </Button>
         </Link>
       ) : (
         <Link to={ROUTE_PATHS.DASHBOARD.path}>
